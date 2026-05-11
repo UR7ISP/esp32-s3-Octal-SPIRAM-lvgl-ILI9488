@@ -22,6 +22,7 @@ jobs:
       - name: Build Firmware for ESP32-S3 with 8MB Octal PSRAM
         run: |
           . /opt/esp/idf/export.sh
+          git config --global --add safe.directory '*'
           cd ports/esp32
           make BOARD=ESP32_GENERIC_S3 BOARD_VARIANT=SPIRAM_OCT submodules
           make BOARD=ESP32_GENERIC_S3 BOARD_VARIANT=SPIRAM_OCT

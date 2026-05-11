@@ -1,0 +1,33 @@
+name: Build ESP32-S3 LVGL Octal Firmware
+
+on:
+  workflow_dispatch: # Позволяет запускать сборку кнопкой вручную
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Используем официальный контейнер от создателей чипа ESP32 (ESP-IDF v5)
+    container: espressif/idf:release-v5.0 
+    
+    steps:
+      - name: Install Git
+        run: apt-get update && apt-get install -y git
+
+      - name: Checkout Official LVGL MicroPython
+        run: |
+          git clone --recurse-submodules https://github.com/lvgl/lv_micropython.git .
+
+      - name: Build mpy-cross (MicroPython Cross-Compiler)
+        run: make -C mpy-cross
+
+      - name: Build Firmware for ESP32-S3 with 8MB Octal PSRAM
+        run: |
+          cd ports/esp32
+          make BOARD=ESP32_GENERIC_S3 BOARD_VARIANT=SPIRAM_OCT submodules
+          make BOARD=ESP32_GENERIC_S3 BOARD_VARIANT=SPIRAM_OCT
+
+      - name: Upload Ready Firmware (.bin)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ESP32-S3-ILI9488-LVGL-Octal-Firmware
+          path: ports/esp32/build-ESP32_GENERIC_S3-SPIRAM_OCT/firmware.bin
